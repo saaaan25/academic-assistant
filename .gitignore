@@ -1,0 +1,19 @@
+# Entornos virtuales
+venv/
+env/
+
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+
+# Variables de entorno (¡NUNCA SUBIR A GITHUB!)
+.env
+
+# Base de datos local
+db.sqlite3
+
+# Base de datos vectorial (Chroma)
+chroma_db/
+
+# PDFs y datos crudos (Opcional, pero recomendado no subir PDFs pesados al repo)
+data_source/
