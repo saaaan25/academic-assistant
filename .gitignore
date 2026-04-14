@@ -16,4 +16,4 @@ db.sqlite3
 chroma_db/
 
 # PDFs y datos crudos (Opcional, pero recomendado no subir PDFs pesados al repo)
-data_source/
+data/
