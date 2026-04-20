@@ -5,8 +5,9 @@ Este proyecto es una plataforma inteligente que permita a los estudiantes consul
 
 ## Requisitos Previos
 Instalaciones necesarias:
-* [Python 3.10 o superior](https://www.python.org/downloads/)
+* [Python 3.10 o 3.11](https://www.python.org/downloads/)
 * [Git](https://git-scm.com/downloads)
+* [Visual C++](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist)
 
 ---
 
@@ -20,7 +21,7 @@ cd academic-assistant
 
 ### 2. Crear entorno virtual y activarlo
 ```
-python -m venv venv
+py -3.11 -m venv venv
 venv\Scripts\activate
 ```
 
