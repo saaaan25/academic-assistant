@@ -13,7 +13,7 @@ VECTOR_DB_PATH = os.path.join(BASE_DIR, "chroma_db")
 
 
 # MODELOS A UTILIZAR
-LLM_MODEL_NAME = "llama3-8b-8192" 
+LLM_MODEL_NAME = "llama-3.1-8b-instant" 
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 
