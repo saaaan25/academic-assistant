@@ -17,6 +17,7 @@ dataclasses-json==0.6.7
 distro==1.9.0
 Django==5.2.3
 django-cors-headers==4.9.0
+django-jazzmin==3.0.4
 djangorestframework==3.17.1
 djangorestframework_simplejwt==5.5.1
 durationpy==0.10
