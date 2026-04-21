@@ -31,9 +31,9 @@ def chat(request):
         response, sources = process_question(question)
         
         return Response({
-            "pregunta": question,
-            "respuesta": response,
-            "fuentes": sources
+            "question": question,
+            "answer": response,
+            "sources": sources
         })
     except Exception as e:
         return Response({"error": f"Cannot process LLM: {str(e)}"}, status = 500)
