@@ -1,28 +1,42 @@
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
-from . import config
-from .pdf_resolver import resolve_pdf
-
 import os
 import sys
+import django
 
-def index_document(route, name):
-    # Obtener fragmentos del pdf
-    fragments = resolve_pdf(route, name)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+
+from ..repositories.document import save_document
+from .config import *
+from .pdf_resolver import resolve_pdf
+
+def index_document(route, title):
+    doc_name = os.path.basename(route)
     
-    print(f"Generating vector for {len(fragments)} fragments")
-    embeddings = HuggingFaceEmbeddings(model_name = config.EMBEDDING_MODEL_NAME)
+    # Guardar documento en db
+    save_document(title, doc_name, route)
     
-    # Guardar en ChromaDB
+    # Fragmentar contenido de documentos
+    fragments = resolve_pdf(route, doc_name)
+    
+    # Generar vectores de los fragmentos
+    embeddings = HuggingFaceEmbeddings(model_name = EMBEDDING_MODEL_NAME)
+
+    # Guardar en chromadb
     Chroma.from_documents(
-        documents = fragments,
-        embedding = embeddings,
-        persist_directory = config.VECTOR_DB_PATH
+        fragments,
+        embeddings, 
+        persist_directory = VECTOR_DB_PATH
     )
-    print(f"'{name}' saved in chroma database")
+    
+    print(f"'{title}' saved in chroma database")
+
 
 if __name__ == "__main__":
-    DIR_ROUTE = os.path.join(config.BASE_DIR, "data", "docs")
+    DIR_ROUTE = os.path.join(BASE_DIR, "data", "docs")
     
     # Verificar argumentos
     if len(sys.argv) < 3:
