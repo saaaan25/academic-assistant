@@ -28,15 +28,35 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+def env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
 
-ALLOWED_HOSTS = []
+
+def env_list(name, default=''):
+    value = os.getenv(name, default)
+    return [item.strip() for item in value.split(',') if item.strip()]
+
+
+DEBUG = env_bool('DEBUG', default=True)
+
+ALLOWED_HOSTS = env_list('ALLOWED_HOSTS', '127.0.0.1,localhost')
 
 
 # Application definition
 
-INSTALLED_APPS = [
-    'jazzmin',
+OPTIONAL_APPS = []
+try:
+    import jazzmin  # noqa: F401
+except ImportError:
+    pass
+else:
+    OPTIONAL_APPS.append('jazzmin')
+
+
+INSTALLED_APPS = OPTIONAL_APPS + [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -79,10 +99,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:5173",
-]
+CORS_ALLOWED_ORIGINS = env_list(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:3000,http://localhost:5173',
+)
+CSRF_TRUSTED_ORIGINS = env_list('CSRF_TRUSTED_ORIGINS')
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 
 # Database
@@ -91,7 +114,7 @@ CORS_ALLOWED_ORIGINS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.getenv('SQLITE_PATH', str(BASE_DIR / 'db.sqlite3')),
     }
 }
 
@@ -131,6 +154,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.getenv('STATIC_ROOT', str(BASE_DIR / 'staticfiles'))
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

@@ -1,6 +1,7 @@
 import os
 import sys
 import django
+from functools import lru_cache
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
@@ -13,30 +14,35 @@ from ..repositories.document import save_document
 from .config import *
 from .pdf_resolver import resolve_pdf
 
+@lru_cache(maxsize=1)
+def get_embeddings():
+    return HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+
+
 def index_document(route, title):
     doc_name = os.path.basename(route)
-    
-    # Guardar documento en db
-    save_document(title, doc_name, route)
-    
+
     # Fragmentar contenido de documentos
     fragments = resolve_pdf(route, doc_name)
-    
+
     # Generar vectores de los fragmentos
-    embeddings = HuggingFaceEmbeddings(model_name = EMBEDDING_MODEL_NAME)
+    embeddings = get_embeddings()
 
     # Guardar en chromadb
     Chroma.from_documents(
         fragments,
-        embeddings, 
-        persist_directory = VECTOR_DB_PATH
+        embeddings,
+        persist_directory=VECTOR_DB_PATH
     )
-    
+
+    # Guardar documento en db solo si la ingesta termino correctamente
+    save_document(title, doc_name, route)
+
     print(f"'{title}' saved in chroma database")
 
 
 if __name__ == "__main__":
-    DIR_ROUTE = os.path.join(BASE_DIR, "data", "docs")
+    DIR_ROUTE = DOCS_DIR
     
     # Verificar argumentos
     if len(sys.argv) < 3:

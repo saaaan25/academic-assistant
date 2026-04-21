@@ -1,0 +1,15 @@
+.git
+.gitignore
+.codex
+.venv
+venv
+env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+db.sqlite3
+chroma_db/
+data/
+staticfiles/
