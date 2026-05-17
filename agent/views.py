@@ -2,11 +2,9 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .serializers import RegisterUserSerializer
 from .services.chat_service import process_question, process_question_user, process_question_free
-from rest_framework.permissions import IsAuthenticated
 from .models import Document, ChatSession, Message, Citation
 from .serializers import DocumentSerializer, SessionSerializer, MessageSerializer, RegisterUserSerializer
 
