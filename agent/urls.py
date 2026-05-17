@@ -11,6 +11,5 @@ urlpatterns = [
     path('sessions/<int:id_session>/', views.manage_session, name='api_manage_session'),
     path('sessions/<int:id_session>/messages/', views.get_messages_by_session, name='api_session_messages'),
     path('documents/', views.get_documents, name='api_documents'),
-    path('profile/me/', views.get_user_info, name='get_my_info'),
-    path('profile/<int:user_id>/', views.get_user_info, name='get_user_info'),
+    path('profile/', views.get_user_info, name='get_profile_me'),
 ]

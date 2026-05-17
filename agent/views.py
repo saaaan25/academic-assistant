@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from .services.chat_service import process_question, process_question_user, process_question_free
 from .models import Document, ChatSession, Message, Citation
-from .serializers import DocumentSerializer, SessionSerializer, MessageSerializer, RegisterUserSerializer
+from .serializers import DocumentSerializer, SessionSerializer, MessageSerializer, RegisterUserSerializer, UserSerializer
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -158,30 +158,9 @@ def manage_session(request, id_session):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_user_info(request, user_id=None):
+def get_user_info(request):
     """
-    Obtiene la información básica de un usuario por su ID.
-    Si no se proporciona user_id, devuelve la info del usuario autenticado.
+    Obtiene la información básica del usuario autenticado directamente desde el token.
     """
-    if user_id is None:
-        user = request.user
-    else:
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response({"error": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
-
-    # Seguridad: Solo el dueño o un admin (staff) pueden ver los datos
-    if request.user.id != user.id and not request.user.is_staff:
-        return Response({"error": "No tienes permiso para ver esta información"}, status=status.HTTP_403_FORBIDDEN)
-
-    # Reutilizamos parte del RegisterUserSerializer o podrías crear uno más específico
-    # para no repetir la estructura del diccionario manualmente.
-    return Response({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "is_active": user.is_active
-    }, status=status.HTTP_200_OK)
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data, status=status.HTTP_200_OK)

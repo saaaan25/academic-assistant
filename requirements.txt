@@ -115,7 +115,7 @@ sympy==1.14.0
 tenacity==9.1.4
 threadpoolctl==3.6.0
 tokenizers==0.22.2
-torch==2.11.0
+torch==2.4.0
 tqdm==4.67.3
 transformers==5.5.4
 typer==0.24.1
@@ -127,6 +127,7 @@ urllib3==2.6.3
 uuid_utils==0.14.1
 uvicorn==0.44.0
 watchfiles==1.1.1
+whitenoise==6.9.0
 websocket-client==1.9.0
 websockets==16.0
 xxhash==3.6.0
