@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -7,7 +8,7 @@ from .serializers import RegisterUserSerializer
 from .services.chat_service import process_question, process_question_user, process_question_free
 from rest_framework.permissions import IsAuthenticated
 from .models import Document, ChatSession, Message, Citation
-from .serializers import DocumentSerializer, SessionSerializer, MessageSerializer
+from .serializers import DocumentSerializer, SessionSerializer, MessageSerializer, RegisterUserSerializer
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -150,9 +151,39 @@ def manage_session(request, id_session):
             new_name = request.data.get('new_name') # Body de la petición
             if not new_name:
                 return Response({"error": "You must provide a name"}, status = 400)
-            session.nombre_chat = new_name
+            session.chat_name = new_name
             session.save()
             return Response({"message": "Renamed", "new_name": new_name})
             
     except ChatSession.DoesNotExist:
         return Response({"error": "Session not found"}, status = 404)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_info(request, user_id=None):
+    """
+    Obtiene la información básica de un usuario por su ID.
+    Si no se proporciona user_id, devuelve la info del usuario autenticado.
+    """
+    if user_id is None:
+        user = request.user
+    else:
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Seguridad: Solo el dueño o un admin (staff) pueden ver los datos
+    if request.user.id != user.id and not request.user.is_staff:
+        return Response({"error": "No tienes permiso para ver esta información"}, status=status.HTTP_403_FORBIDDEN)
+
+    # Reutilizamos parte del RegisterUserSerializer o podrías crear uno más específico
+    # para no repetir la estructura del diccionario manualmente.
+    return Response({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "is_active": user.is_active
+    }, status=status.HTTP_200_OK)
