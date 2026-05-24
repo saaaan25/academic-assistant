@@ -129,6 +129,9 @@ docker exec -it academic-assistant python manage.py ingest_pdfs
 
 El comando omite PDFs ya registrados en la base de datos y genera embeddings en `VECTOR_DB_PATH`.
 
+User:admin
+Contraseña: choware123
+
 ## Flujo con Cloudflare Tunnel
 
 La aplicación ya está preparada para correr detrás de proxy: el contenedor inicia `uvicorn` con `--proxy-headers` y Django usa `SECURE_PROXY_SSL_HEADER` y `USE_X_FORWARDED_HOST`.

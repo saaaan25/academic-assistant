@@ -1,13 +1,12 @@
 from django.shortcuts import render
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .serializers import RegisterUserSerializer
 from .services.chat_service import process_question, process_question_user, process_question_free
-from rest_framework.permissions import IsAuthenticated
 from .models import Document, ChatSession, Message, Citation
-from .serializers import DocumentSerializer, SessionSerializer, MessageSerializer
+from .serializers import DocumentSerializer, SessionSerializer, MessageSerializer, RegisterUserSerializer, UserSerializer
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -150,9 +149,18 @@ def manage_session(request, id_session):
             new_name = request.data.get('new_name') # Body de la petición
             if not new_name:
                 return Response({"error": "You must provide a name"}, status = 400)
-            session.nombre_chat = new_name
+            session.chat_name = new_name
             session.save()
             return Response({"message": "Renamed", "new_name": new_name})
             
     except ChatSession.DoesNotExist:
         return Response({"error": "Session not found"}, status = 404)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_info(request):
+    """
+    Obtiene la información básica del usuario autenticado directamente desde el token.
+    """
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data, status=status.HTTP_200_OK)

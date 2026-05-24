@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 # API KEY DEL MODELO LL
 LLM_API_KEY = os.getenv("LLM_API_KEY")
@@ -10,7 +10,7 @@ LLM_API_KEY = os.getenv("LLM_API_KEY")
 # RUTAS
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DOCS_DIR = os.getenv("DOCS_DIR", os.path.join(BASE_DIR, "data", "docs"))
-VECTOR_DB_PATH = os.getenv("VECTOR_DB_PATH", os.path.join(BASE_DIR, "chroma_db"))
+VECTOR_DB_PATH = os.getenv("VECTOR_DB_PATH", os.path.join(BASE_DIR, "data", "chroma_db"))
 
 
 # MODELOS A UTILIZAR

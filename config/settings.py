@@ -15,7 +15,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Carga el archivo .env
-load_dotenv()
+load_dotenv(override=True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,8 +26,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
 def env_bool(name, default=False):
     value = os.getenv(name)
     if value is None:
@@ -40,10 +38,9 @@ def env_list(name, default=''):
     return [item.strip() for item in value.split(',') if item.strip()]
 
 
-DEBUG = env_bool('DEBUG', default=True)
+DEBUG = env_bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = env_list('ALLOWED_HOSTS', '127.0.0.1,localhost')
-
+ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', '0.0.0.0']
 
 # Application definition
 
@@ -71,6 +68,7 @@ INSTALLED_APPS = OPTIONAL_APPS + [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -104,9 +102,22 @@ CORS_ALLOWED_ORIGINS = env_list(
     'http://localhost:3000,http://localhost:5173',
 )
 CSRF_TRUSTED_ORIGINS = env_list('CSRF_TRUSTED_ORIGINS')
+
+# Asegurar que los orígenes tengan el esquema correcto y permitir subdominios de Cloudflare
+CSRF_TRUSTED_ORIGINS = [
+    o if o.startswith('http') else f'https://{o}' for o in CSRF_TRUSTED_ORIGINS
+]
+if 'https://.trycloudflare.com' not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append('https://.trycloudflare.com')
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
+# Configuración de WhiteNoise para servir estáticos correctamente en Docker
+WHITENOISE_KEEP_ONLY_HASHED_FILES = True
+
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -114,7 +125,7 @@ USE_X_FORWARDED_HOST = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.getenv('SQLITE_PATH', str(BASE_DIR / 'db.sqlite3')),
+        'NAME': os.getenv('SQLITE_PATH', str(BASE_DIR / 'data' / 'db.sqlite3')),
     }
 }
 
@@ -154,10 +165,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.getenv('STATIC_ROOT', str(BASE_DIR / 'staticfiles'))
+STATIC_ROOT = os.getenv('STATIC_ROOT', str(BASE_DIR / 'data' / 'staticfiles'))
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
