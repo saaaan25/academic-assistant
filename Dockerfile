@@ -33,6 +33,6 @@ EXPOSE 8000
 CMD ["sh", "-c", "\
 python -m pip list && \
 python manage.py migrate && \
-python manage.py ingest_pdfs --docs-dir ./data/docs && \
+python manage.py ingest_pdfs --docs-dir ./demo-data/docs && \
 gunicorn config.wsgi:application --bind 0.0.0.0:${PORT} \
 "]
