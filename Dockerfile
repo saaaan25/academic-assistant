@@ -37,4 +37,4 @@ RUN mkdir -p /app/data/docs /app/data/chroma_db /app/data/staticfiles
 EXPOSE 8000
 
 # ◄--- AQUÍ ESTÁ EL CAMBIO CLAVE: Quitamos ENTRYPOINT y usamos CMD directo ---►
-CMD python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+CMD python -m pip list && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
