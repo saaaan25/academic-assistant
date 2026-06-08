@@ -1,3 +1,5 @@
+import traceback
+
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import status
@@ -101,6 +103,7 @@ def chat(request):
         })
     
     except Exception as e:
+        traceback.print_exc()
         return Response({"error": str(e)}, status = 500) 
 
 # GET sessions
